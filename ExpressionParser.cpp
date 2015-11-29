@@ -8,7 +8,7 @@
 Node *ExpressionParser::parseExpression(std::string const& exp)
 {
     std::vector<Node*> nodeVect;
-    nodeVect.push_back(new OperationNode("dummyNode", -2000));
+    nodeVect.push_back(new OperationNode("dummyNode", EPrecendence::Dummy));
     int expIndex = 0;
     std::string result;
     while (expIndex < exp.size())
@@ -46,15 +46,15 @@ Node *ExpressionParser::parseExpression(std::string const& exp)
         {
             if(0 == expIndex || nodeVect.back()->isOperation())
                 throw "Error two operations next to each other or expression starting with operation";
-            nodeVect.push_back(new OperationNode(result, 10));
+            nodeVect.push_back(new OperationNode(result, EPrecendence::Comparison));
             expIndex += result.size();
         }
         else if(isOneOf(exp, expIndex, logicalOperators, result))
         {
             if(result=="or")
-                nodeVect.push_back(new OperationNode(result, 5));
+                nodeVect.push_back(new OperationNode(result, EPrecendence::LogicalOr));
             if(result=="and")
-                nodeVect.push_back(new OperationNode(result, 6));
+                nodeVect.push_back(new OperationNode(result, EPrecendence::LogicalAnd));
             expIndex += result.size();
         }
         else
@@ -68,12 +68,12 @@ Node *ExpressionParser::parseExpression(std::string const& exp)
             {
                 valLength++;
             }
-            nodeVect.push_back(new ValueNode(exp.substr(expIndex,valLength), 100));
+            nodeVect.push_back(new ValueNode(exp.substr(expIndex,valLength), EPrecendence::Value));
             expIndex += valLength;
         }
     }
 
-    nodeVect.push_back(new ValueNode("dummyNode", -2000));
+    nodeVect.push_back(new ValueNode("dummyNode", EPrecendence::Dummy));
     while(nodeVect.size()!=3)
     {
         for(auto it = nodeVect.begin(); it != nodeVect.end(); ++it)
@@ -91,16 +91,16 @@ Node *ExpressionParser::parseExpression(std::string const& exp)
                     else
                         dynamic_cast<OperationNode*>(prevNode)->childNodes.push_back(currNode);
                     currNode->increaseIndent();
-                    currNode->precendence = 1000;
+                    currNode->precendence = EPrecendence::NodeToRemove;
                 }
             }
         }
-        auto newEnd = std::remove_if(nodeVect.begin(),nodeVect.end(),[](Node* node){return node->precendence==1000;});
+        auto newEnd = std::remove_if(nodeVect.begin(),nodeVect.end(),[](Node* node){return node->precendence==EPrecendence::NodeToRemove;});
         nodeVect.resize(std::distance(nodeVect.begin(), newEnd));
     }
     delete nodeVect[0];
     delete nodeVect[2];
-    nodeVect[1]->precendence=10;
+    nodeVect[1]->precendence=EPrecendence::Value;
     return nodeVect[1];
 }
 

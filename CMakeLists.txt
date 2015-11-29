@@ -12,6 +12,7 @@ set(SOURCES
     NodeStructs.hpp
     TreePrinter.hpp
     TreePrinter.cpp
+    EPrecendense.hpp
 )
 
 

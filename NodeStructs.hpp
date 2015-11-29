@@ -2,23 +2,24 @@
 #include <string>
 #include <vector>
 #include "TreePrinter.hpp"
+#include "EPrecendense.hpp"
 
 struct Node
 {
-    Node(std::string name, int precendence): name(name), precendence(precendence), indent(0) {}
+    Node(std::string name, EPrecendence precendence): name(name), precendence(precendence), indent(0) {}
     virtual void visit(TreePrinter* tp) = 0;
     virtual bool isValue() = 0;
     virtual bool isOperation() = 0;
     virtual void increaseIndent() = 0;
     std::string name;
-    int precendence;
+    EPrecendence precendence;
     int indent;
     virtual ~Node() {}
 };
 
 struct ValueNode: public Node
 {
-    ValueNode(std::string name, int precendence): Node(name, precendence) {}
+    ValueNode(std::string name, EPrecendence precendence): Node(name, precendence) {}
     bool isValue() {return true; }
     bool isOperation() {return false; }
     void increaseIndent() { indent++;}
@@ -30,7 +31,7 @@ struct ValueNode: public Node
 
 struct OperationNode: public Node
 {
-    OperationNode(std::string name, int precendence): Node(name, precendence) {}
+    OperationNode(std::string name, EPrecendence precendence): Node(name, precendence) {}
     bool isValue() {return false; }
     bool isOperation() {return true; }
     void increaseIndent()
